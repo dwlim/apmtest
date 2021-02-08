@@ -1,6 +1,9 @@
 <h1>APM Test</h1>
+<button onclick="darkMode()">Dark mode</button> 
 
-<canvas id="canvas" width="500" height="300"></canvas>
+<body>
+  <canvas id="canvas" width="500" height="300"></canvas>
+</body>
 
 <p>
   Noob: 0 - 200 <br>
@@ -18,14 +21,24 @@
 
   const canvas = document.getElementById('canvas');
   const ctx = canvas.getContext('2d');
+  var dark_mode = false;
       
+  function darkMode() {
+    dark_mode = !dark_mode
+    canvas.classList.toggle("dark-mode");
+  } 
+
   function drawCircles(arr) {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     if (arr.length == 0) {
       score.end = new Date().getTime();
       ctx.font = "30px Arial";
-      ctx.fillStyle = "black";
+      if (dark_mode) {
+        ctx.fillStyle = "white";
+      } else {
+        ctx.fillStyle = "black";
+      }
       ctx.textAlign = "center";
       ctx.textBaseline = 'middle';
       var time = (score.end - score.start);
@@ -113,5 +126,10 @@
     margin-left: auto;
     margin-right: auto;
     display: block;
+    background-color: white;
+  }
+
+  .dark-mode {
+    background-color: black;
   }
 </style>
