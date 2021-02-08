@@ -1,4 +1,4 @@
-<h1> Hello world </h1>
+<h1>APM Test</h1>
 
 <canvas id="canvas" width="500" height="300"></canvas>
 
@@ -80,7 +80,7 @@
     };
   }
   
-  canvas.addEventListener('click', (e) => {
+  canvas.addEventListener('mousedown', (e) => {
     const mouse_pos = getMousePos(canvas, e);
     if (Math.abs(mouse_pos.x - numbers.arr[0].x) <= radius && Math.abs(mouse_pos.y - numbers.arr[0].y) <= radius) {
       if (!score.active) {
