@@ -19,7 +19,9 @@
       ctx.fillStyle = "black";
       ctx.textAlign = "center";
       ctx.textBaseline = 'middle';
-      ctx.fillText('Time: ' + ((score.end - score.start) / 1000), canvas.width / 2, canvas.height / 2); 
+      var time = (score.end - score.start);
+      var apm = Math.ceil(50 / time * 1e3 * 60 * 1.8)
+      ctx.fillText('Time: ' + time/1000 + '\nAPM: ' + apm, canvas.width / 2, canvas.height / 2); 
     }
     
     arr.slice().reverse().forEach(circle => {
