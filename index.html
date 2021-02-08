@@ -1,22 +1,95 @@
 <h1> Hello world </h1>
 
-<canvas id="canvas" width="150" height="150"></canvas>
+<canvas id="canvas" width="500" height="300"></canvas>
 
 <script>
-  function draw() {
-    var canvas = document.getElementById('canvas');
-    if (canvas.getContext) {
-      var ctx = canvas.getContext('2d');
-      
+  function getRndInteger(min, max) {
+    return Math.floor(Math.random() * (max - min) ) + min;
+  }
+
+  const canvas = document.getElementById('canvas');
+  const ctx = canvas.getContext('2d');
+
+  function drawCircles(arr) {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    if (arr.length == 0) {
+      score.end = new Date().getTime();
+      ctx.font = "30px Arial";
+      ctx.fillStyle = "black";
+      ctx.textAlign = "center";
+      ctx.textBaseline = 'middle';
+      ctx.fillText('Time: ' + ((score.end - score.start) / 1000), canvas.width / 2, canvas.height / 2); 
+    }
+    
+    arr.slice().reverse().forEach(circle => {
       ctx.beginPath();
-      ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI, false);
-      ctx.fillStyle = 'green';
+      ctx.arc(circle.x, circle.y, radius, 0, 2 * Math.PI, false);
+      ctx.fillStyle = '#333333';
       ctx.fill();
-      ctx.lineWidth = 5;
-      ctx.strokeStyle = '#003300';
-      ctx.stroke();
+
+      ctx.beginPath();
+      ctx.arc(circle.x, circle.y, radius - border, 0, 2 * Math.PI, false);
+      ctx.fillStyle = '#666666';
+      ctx.fill();
+
+      ctx.font = "20px Arial";
+      ctx.fillStyle = "white";
+      ctx.textAlign = "center";
+      ctx.textBaseline = 'middle';
+      ctx.fillText(circle.n , circle.x, circle.y); 
+    });
+  }
+
+  function spawnCircle(numbers) {
+    if (numbers.pos > 0) {
+      var circle = {
+        x : getRndInteger(radius, canvas.width - radius), 
+        y : getRndInteger(radius, canvas.height - radius),
+        n : numbers.pos
+      };
+      numbers.arr.push(circle);
+      numbers.pos -= 1;
     }
   }
+
+  const radius = 25;
+  const border = 2;
+  var numbers = {
+    arr: [],
+    pos: 50
+  };
+
+  var score = {
+    active: false,
+    start: null,
+    end: null
+  }
+
+  for (i = 0; i < 5; i++) {
+    spawnCircle(numbers);
+  }
+
+  drawCircles(numbers.arr);
+
+  function getMousePos(canvas, evt) {
+    var rect = canvas.getBoundingClientRect();
+    return {
+      x: evt.clientX - rect.left,
+      y: evt.clientY - rect.top
+    };
+  }
   
-  draw()
+  canvas.addEventListener('click', (e) => {
+    const mouse_pos = getMousePos(canvas, e);
+    if (Math.abs(mouse_pos.x - numbers.arr[0].x) <= radius && Math.abs(mouse_pos.y - numbers.arr[0].y) <= radius) {
+      if (!score.active) {
+        score.active = true;
+        score.start = new Date().getTime();
+      }
+      numbers.arr.shift();
+      spawnCircle(numbers);
+      drawCircles(numbers.arr);
+    }
+  });
 </script>
