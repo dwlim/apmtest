@@ -1,19 +1,86 @@
 <h1>APM Test</h1>
+<div class="stopwatch" id="a-timer"></div>1 ms<br>
 
 <canvas id="canvas" width="500" height="300"></canvas>
 
 <script>
+  var Stopwatch = function(elem, options) {
+  
+  var timer       = createTimer(),
+      offset,
+      clock,
+      interval;
+  
+  // default options
+  options = options || {};
+  options.delay = options.delay || 10;
+
+  // append elements     
+  elem.appendChild(timer);
+  
+  // initialize
+  reset();
+  
+  // private functions
+  function createTimer() {
+    return document.createElement("span");
+  }
+  
+  function start() {
+    if (!interval) {
+      offset   = Date.now();
+      interval = setInterval(update, options.delay);
+    }
+  }
+  
+  function stop() {
+    if (interval) {
+      clearInterval(interval);
+      interval = null;
+    }
+  }
+  
+  function reset() {
+    clock = 0;
+    render(0);
+  }
+  
+  function update() {
+    clock += delta();
+    render();
+  }
+  
+  function render() {
+    timer.innerHTML = clock/1000; 
+  }
+  
+  function delta() {
+    var now = Date.now(),
+        d   = now - offset;
+    
+    offset = now;
+    return d;
+  }
+  
+  // public API
+  this.start  = start;
+  this.stop   = stop;
+  this.reset  = reset;
+};
+
   function getRndInteger(min, max) {
     return Math.floor(Math.random() * (max - min) ) + min;
   }
 
   const canvas = document.getElementById('canvas');
   const ctx = canvas.getContext('2d');
-
+  const aTimer = new Stopwatch(document.getElementById("a-timer"));
+      
   function drawCircles(arr) {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     if (arr.length == 0) {
+      aTimer.stop();
       score.end = new Date().getTime();
       ctx.font = "30px Arial";
       ctx.fillStyle = "black";
@@ -84,6 +151,7 @@
     const mouse_pos = getMousePos(canvas, e);
     if (Math.abs(mouse_pos.x - numbers.arr[0].x) <= radius && Math.abs(mouse_pos.y - numbers.arr[0].y) <= radius) {
       if (!score.active) {
+        aTimer.start();
         score.active = true;
         score.start = new Date().getTime();
       }
