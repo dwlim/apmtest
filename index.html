@@ -1,135 +1,181 @@
-<h1>APM Test</h1>
-<button onclick="darkMode()">Dark mode</button> 
-
-<body>
-  <canvas id="canvas" width="500" height="300"></canvas>
-</body>
-
-<p>
-  Noob: 0 - 200 <br>
-  Average: 200 - 300 <br>
-  Decent: 300 - 350 <br>
-  Good: 350 - 400 <br>
-  Fast: 400 - 500 <br>
-  Pro: 500 - 715 <br>
-</p>
-
+<html id="webpage">
+   <h1>APM Test</h1>
+   <button onclick="darkMode()">Dark mode</button> 
+   <body>
+      <canvas id="canvas" width="500" height="300"></canvas>
+   </body>
+   <p>
+      Noob: 0 - 200 <br>
+      Average: 200 - 300 <br>
+      Decent: 300 - 350 <br>
+      Good: 350 - 400 <br>
+      Fast: 400 - 500 <br>
+      Pro: 500 - 715 <br>
+   </p>
+</html>
 <script>
-  function getRndInteger(min, max) {
-    return Math.floor(Math.random() * (max - min) ) + min;
-  }
-
-  const canvas = document.getElementById('canvas');
-  const ctx = canvas.getContext('2d');
-  var dark_mode = false;
-      
-  function darkMode() {
-    dark_mode = !dark_mode
-    canvas.classList.toggle("dark-mode");
-  } 
-
-  function drawCircles(arr) {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    if (arr.length == 0) {
-      score.end = new Date().getTime();
-      ctx.font = "30px Arial";
-      if (dark_mode) {
-        ctx.fillStyle = "white";
-      } else {
-        ctx.fillStyle = "black";
-      }
-      ctx.textAlign = "center";
-      ctx.textBaseline = 'middle';
-      var time = (score.end - score.start);
-      var apm = Math.ceil(50 / time * 1e3 * 60 * 1.8)
-      ctx.fillText('Time: ' + time/1000 + '\nAPM: ' + apm, canvas.width / 2, canvas.height / 2); 
-    }
-    
-    arr.slice().reverse().forEach(circle => {
-      ctx.beginPath();
-      ctx.arc(circle.x, circle.y, radius, 0, 2 * Math.PI, false);
-      ctx.fillStyle = '#333333';
-      ctx.fill();
-
-      ctx.beginPath();
-      ctx.arc(circle.x, circle.y, radius - border, 0, 2 * Math.PI, false);
-      ctx.fillStyle = '#666666';
-      ctx.fill();
-
-      ctx.font = "20px Arial";
-      ctx.fillStyle = "white";
-      ctx.textAlign = "center";
-      ctx.textBaseline = 'middle';
-      ctx.fillText(circle.n , circle.x, circle.y); 
-    });
-  }
-
-  function spawnCircle(numbers) {
-    if (numbers.pos > 0) {
-      var circle = {
-        x : getRndInteger(radius, canvas.width - radius), 
-        y : getRndInteger(radius, canvas.height - radius),
-        n : numbers.pos
-      };
-      numbers.arr.push(circle);
-      numbers.pos -= 1;
-    }
-  }
-
-  const radius = 25;
-  const border = 2;
-  const num_circles = 6;
-  var numbers = {
-    arr: [],
-    pos: 50
-  };
-
-  var score = {
-    active: false,
-    start: null,
-    end: null
-  }
-
-  for (i = 0; i < num_circles; i++) {
-    spawnCircle(numbers);
-  }
-
-  drawCircles(numbers.arr);
-
-  function getMousePos(canvas, evt) {
-    var rect = canvas.getBoundingClientRect();
-    return {
-      x: evt.clientX - rect.left,
-      y: evt.clientY - rect.top
-    };
-  }
-  
-  canvas.addEventListener('mousedown', (e) => {
-    const mouse_pos = getMousePos(canvas, e);
-    if (Math.abs(mouse_pos.x - numbers.arr[0].x) <= radius && Math.abs(mouse_pos.y - numbers.arr[0].y) <= radius) {
-      if (!score.active) {
-        score.active = true;
-        score.start = new Date().getTime();
-      }
-      numbers.arr.shift();
-      spawnCircle(numbers);
-      drawCircles(numbers.arr);
-    }
-  });
+   function getRndInteger(min, max) {
+     return Math.floor(Math.random() * (max - min) ) + min;
+   }
+   
+   const canvas = document.getElementById('canvas');
+   const ctx = canvas.getContext('2d');
+   params = returnParam();
+   var dark_mode = (params.get("dark-mode") === 'true');
+   if(dark_mode == true){
+     canvas.classList.add("dark-mode");
+     var element = document.getElementById("webpage");
+     element.classList.add("dark-mode-page");
+   }
+       
+   function darkMode() {
+     dark_mode = !dark_mode
+     insertParam('dark-mode', dark_mode);
+   } 
+   
+   function returnParam() {
+     let map = new Map();
+     params = document.location.search.substr(1).split('&')
+       let i=1;
+       for(; i<params.length; i++){
+         let pair = params[i].split('=');
+         map.set(pair[0], pair[1]);
+     }
+     return map;
+   }
+   
+   function insertParam(key, value) {
+     key = encodeURIComponent(key);
+     value = encodeURIComponent(value);
+   
+     // kvp looks like ['key1=value1', 'key2=value2', ...]
+     var kvp = document.location.search.substr(1).split('&');
+     let i=0;
+   
+     for(; i<kvp.length; i++){
+         if (kvp[i].startsWith(key + '=')) {
+             let pair = kvp[i].split('=');
+             pair[1] = value;
+             kvp[i] = pair.join('=');
+             break;
+         }
+     }
+   
+     if(i >= kvp.length){
+         kvp[kvp.length] = [key,value].join('=');
+     }
+   
+     // can return this or...
+     let params = kvp.join('&');
+   
+     // reload page with new params
+     document.location.search = params;
+   }
+   
+   function drawCircles(arr) {
+     ctx.clearRect(0, 0, canvas.width, canvas.height);
+   
+     if (arr.length == 0) {
+       score.end = new Date().getTime();
+       ctx.font = "30px Arial";
+       if (dark_mode) {
+         ctx.fillStyle = "white";
+       } else {
+         ctx.fillStyle = "black";
+       }
+       ctx.textAlign = "center";
+       ctx.textBaseline = 'middle';
+       var time = (score.end - score.start);
+       var apm = Math.ceil(50 / time * 1e3 * 60 * 1.8)
+       ctx.fillText('Time: ' + time/1000 + '\nAPM: ' + apm, canvas.width / 2, canvas.height / 2); 
+     }
+     
+     arr.slice().reverse().forEach(circle => {
+       ctx.beginPath();
+       ctx.arc(circle.x, circle.y, radius, 0, 2 * Math.PI, false);
+       ctx.fillStyle = '#333333';
+       ctx.fill();
+   
+       ctx.beginPath();
+       ctx.arc(circle.x, circle.y, radius - border, 0, 2 * Math.PI, false);
+       ctx.fillStyle = '#666666';
+       ctx.fill();
+   
+       ctx.font = "20px Arial";
+       ctx.fillStyle = "white";
+       ctx.textAlign = "center";
+       ctx.textBaseline = 'middle';
+       ctx.fillText(circle.n , circle.x, circle.y); 
+     });
+   }
+   
+   function spawnCircle(numbers) {
+     if (numbers.pos > 0) {
+       var circle = {
+         x : getRndInteger(radius, canvas.width - radius), 
+         y : getRndInteger(radius, canvas.height - radius),
+         n : numbers.pos
+       };
+       numbers.arr.push(circle);
+       numbers.pos -= 1;
+     }
+   }
+   
+   const radius = 25;
+   const border = 2;
+   const num_circles = 6;
+   var numbers = {
+     arr: [],
+     pos: 50
+   };
+   
+   var score = {
+     active: false,
+     start: null,
+     end: null
+   }
+   
+   for (i = 0; i < num_circles; i++) {
+     spawnCircle(numbers);
+   }
+   
+   drawCircles(numbers.arr);
+   
+   function getMousePos(canvas, evt) {
+     var rect = canvas.getBoundingClientRect();
+     return {
+       x: evt.clientX - rect.left,
+       y: evt.clientY - rect.top
+     };
+   }
+   
+   canvas.addEventListener('mousedown', (e) => {
+     const mouse_pos = getMousePos(canvas, e);
+     if (Math.abs(mouse_pos.x - numbers.arr[0].x) <= radius && Math.abs(mouse_pos.y - numbers.arr[0].y) <= radius) {
+       if (!score.active) {
+         score.active = true;
+         score.start = new Date().getTime();
+       }
+       numbers.arr.shift();
+       spawnCircle(numbers);
+       drawCircles(numbers.arr);
+     }
+   });
 </script>
-
 <style>
-  canvas {
-    padding-left: 0;
-    padding-right: 0;
-    margin-left: auto;
-    margin-right: auto;
-    display: block;
-    background-color: white;
-  }
-
-  .dark-mode {
-    background-color: black;
-  }
+   canvas {
+   padding-left: 0;
+   padding-right: 0;
+   margin-left: auto;
+   margin-right: auto;
+   display: block;
+   background-color: white;
+   }
+   .dark-mode {
+   background-color: black;
+   }
+   .dark-mode-page {
+   background-color: black;
+   color: white;
+   }
 </style>
